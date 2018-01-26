@@ -1,7 +1,7 @@
 #include "RNGetPixel.h"
 #import "React/RCTImageLoader.h"
 #import "React/RCTBridge.h"
-#import "UIImageColorAtPixel.h"
+#import "UIImage+ColorAtPixel.h"
 
 @implementation RNPixelColor
 
