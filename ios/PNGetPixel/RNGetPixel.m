@@ -61,7 +61,7 @@ RCT_EXPORT_METHOD(findAngleOfNearestColor:(NSString *)imageName
     if (image == nil) {
         return callback(@[@"Could not create image from given path.", @""]);
     }
-    
+
     CGFloat width = image.size.width;
     CGFloat height = image.size.height;
     CGPoint center = CGPointMake(width * 0.5, height * 0.5);
@@ -108,5 +108,6 @@ RCT_EXPORT_METHOD(findAngleOfNearestColor:(NSString *)imageName
         callback(@[@"Could not create image from given path.", @""]);
     }
 }
+
 
 @end
