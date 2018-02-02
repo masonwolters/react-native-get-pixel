@@ -2,17 +2,16 @@ import {
   NativeModules,
 } from 'react-native';
 
-function getPixelHex(path, options) {
+function getPixelRGBA(imageName, x, y) {
   return new Promise((resolve, reject) => {
-      NativeModules.RNPixelColor.getPixelHex(path, options, (err, color) => {
+      NativeModules.RNPixelColor.getPixelRGBAofImage(imageName, x, y, (err, color) => {        
         if (err) {
           return reject(err);
         }
-
         resolve(color);
       });
     });
   }
 
 
-export default getPixelHex 
+export default getPixelRGBA 
