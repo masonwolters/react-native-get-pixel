@@ -12,3 +12,25 @@ export function getPixelRGBA(imageName, x, y) {
       });
   });
 }
+
+export function getPixelRGBAPolar(imageName, angle, radius) {
+  return new Promise((resolve, reject) => {
+      NativeModules.RNPixelColor.getPixelRGBAPolarOfImage(imageName, angle, radius, (err, color) => {        
+        if (err) {
+          return reject(err);
+        }
+        resolve(color);
+      });
+  });
+}
+
+export function findAngleOfNearestColor(imageName, minAngle, maxAngle, radius, targetColor) {
+  return new Promise((resolve, reject) => {
+      NativeModules.RNPixelColor.findAngleOfNearestColor(imageName, minAngle, maxAngle, radius, targetColor, (err, angle) => {        
+        if (err) {
+          return reject(err);
+        }
+        resolve(angle);
+      });
+  });
+}
