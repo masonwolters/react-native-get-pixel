@@ -2,7 +2,7 @@ import {
   NativeModules,
 } from 'react-native';
 
-function getPixelRGBA(imageName, x, y) {
+export function getPixelRGBA(imageName, x, y) {
   return new Promise((resolve, reject) => {
       NativeModules.RNPixelColor.getPixelRGBAofImage(imageName, x, y, (err, color) => {        
         if (err) {
@@ -10,8 +10,5 @@ function getPixelRGBA(imageName, x, y) {
         }
         resolve(color);
       });
-    });
-  }
-
-
-export default getPixelRGBA 
+  });
+}
