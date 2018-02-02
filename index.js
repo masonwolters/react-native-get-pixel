@@ -12,3 +12,14 @@ export function getPixelRGBA(imageName, x, y) {
       });
   });
 }
+
+export function getPixelRGBAPolar(imageName, angle, radius) {
+  return new Promise((resolve, reject) => {
+      NativeModules.RNPixelColor.getPixelRGBAPolarOfImage(imageName, angle, radius, (err, color) => {        
+        if (err) {
+          return reject(err);
+        }
+        resolve(color);
+      });
+  });
+}
