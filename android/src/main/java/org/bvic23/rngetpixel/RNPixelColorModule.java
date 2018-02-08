@@ -1,12 +1,10 @@
 package org.bvic23.rngetpixel;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.widget.ImageView;
 
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -16,13 +14,19 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableNativeArray;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.cos;
+import static java.lang.Math.pow;
+import static java.lang.Math.sin;
 
 class RNPixelColorModule extends ReactContextBaseJavaModule {
-    private Context context;
+    private final Context context;
+    private static final double rotation = PI / 2;
 
-    public RNPixelColorModule(ReactApplicationContext reactContext) {
+    public RNPixelColorModule(final ReactApplicationContext reactContext) {
         super(reactContext);
         this.context = reactContext;
     }
@@ -33,166 +37,97 @@ class RNPixelColorModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void getPixelRGBAofImage(String imageName, float x, float y, final Callback callback) {
+    public void getPixelRGBAofImage(final String imageName, final int x, final int y, final Callback callback) {
         try {
-/*
-                InputStream ims = getAssets().open(imageName);
-                Drawable d = Drawable.createFromStream(ims, null);
-                mImage.setImageDrawable(d);
-*/
-            WritableArray result = new WritableNativeArray();
-            result.pushInt(255);
-            result.pushInt(0);
-            result.pushInt(0);
-            callback.invoke(null, result);
+            final Bitmap bitmap = loadImage(imageName);
+            final int pixel = bitmap.getPixel(x, y);
+            respondWithPixel(callback, pixel);
         } catch (Exception e) {
             callback.invoke(e.getMessage());
         }
     }
 
     @ReactMethod
-    public void getPixelRGBAPolarOfImage(String imageName, float angle, float radius, final Callback callback) {
+    public void getPixelRGBAPolarOfImage(final String imageName, final double angle, final double radius, final Callback callback) {
         try {
-            InputStream inputStream = context.getAssets().open("drawable/" + imageName +".png");
-            Drawable drawable = Drawable.createFromStream(inputStream, null);
-            Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
+            final Bitmap image = loadImage(imageName);
+            final double width = image.getWidth();
+            final double height = image.getHeight();
+            final double rotatedAngle = angle + rotation;
 
-            int pixel = bitmap.getPixel(0, 0);
+            final double centerX = width * 0.5;
+            final double centerY = height * 0.5;
 
-            int r = Color.red(pixel);
-            int g = Color.blue(pixel);
-            int b = Color.green(pixel);
+            final int x = (int)(centerX + radius * cos(rotatedAngle));
+            final int y = (int)(centerY + radius * sin(rotatedAngle));
 
-            WritableArray result = new WritableNativeArray();
-            result.pushInt(r);
-            result.pushInt(g);
-            result.pushInt(b);
-            callback.invoke(null, result);
+            final int pixel = image.getPixel(x, y);
+            respondWithPixel(callback, pixel);
         } catch (Exception e) {
             callback.invoke(e.getMessage());
         }
     }
 
     @ReactMethod
-    public void findAngleOfNearestColor(String imageName, float minAngle, float maxAngle, float radius, final ReadableArray targetColor, final Callback callback) {
+    public void findAngleOfNearestColor(final String imageName, final double minAngle, final double maxAngle, final double radius, final ReadableArray targetColor, final Callback callback) {
         try {
-/*
-                InputStream ims = getAssets().open(imageName);
-                Drawable d = Drawable.createFromStream(ims, null);
-                mImage.setImageDrawable(d);
-*/
-            callback.invoke(null, maxAngle);
+            final Bitmap image = loadImage(imageName);
+            final double width = image.getWidth();
+            final double height = image.getHeight();
+
+            final double centerX = width * 0.5;
+            final double centerY = height * 0.5;
+
+            double angle = minAngle;
+
+            final int targetRed = targetColor.getInt(0);
+            final int targetGreen = targetColor.getInt(1);
+            final int targetBlue = targetColor.getInt(2);
+
+            double minDistance = Double.MAX_VALUE;
+            double resultAngle = Double.MAX_VALUE;
+
+            while (angle <= maxAngle) {
+                final double rotatedAngle = angle + rotation;
+                final int x = (int)(centerX + radius * cos(rotatedAngle));
+                final int y = (int)(centerY + radius * sin(rotatedAngle));
+
+                final int pixel = image.getPixel(x, y);
+                final int red = Color.red(pixel);
+                final int green = Color.blue(pixel);
+                final int blue = Color.green(pixel);
+
+                final double distance = pow(targetRed - red, 2) + pow(targetGreen - green, 2) + pow(targetBlue - blue, 2);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    resultAngle = angle;
+                }
+
+                angle += PI / 180;
+            }
+
+            callback.invoke(null, resultAngle);
         } catch (Exception e) {
             callback.invoke(e.getMessage());
         }
     }
-}
 
-/*
-#include "RNGetPixel.h"
-#import "React/RCTImageLoader.h"
-#import "React/RCTBridge.h"
-#import "UIImage+RGBAAtPixel.h"
-#import <math.h>
+    private void respondWithPixel(final Callback callback, final int pixel) {
+        final int r = Color.red(pixel);
+        final int g = Color.blue(pixel);
+        final int b = Color.green(pixel);
 
-@implementation RNPixelColor
-
-@synthesize bridge = _bridge;
-
-static CGFloat rotation = M_PI / 2;
-
-RCT_EXPORT_MODULE();
-
-RCT_EXPORT_METHOD(getPixelRGBAofImage:(NSString *)imageName
-                  atX:(CGFloat)x
-                  atY:(CGFloat)y
-                  callback:(RCTResponseSenderBlock)callback) {
-    UIImage *image = [UIImage imageNamed:imageName];
-    if (image == nil) {
-        return callback(@[@"Could not create image from given path.", @""]);
-    }
-    [self getPixelColorFromImage:image atX:x atY:y callback:callback];
-}
-
-RCT_EXPORT_METHOD(getPixelRGBAPolarOfImage:(NSString *)imageName
-                  angle:(CGFloat)angle
-                  radius:(CGFloat)radius
-                  callback:(RCTResponseSenderBlock)callback) {
-    UIImage *image = [UIImage imageNamed:imageName];
-    if (image == nil) {
-        return callback(@[@"Could not create image from given path.", @""]);
+        final WritableArray result = new WritableNativeArray();
+        result.pushInt(r);
+        result.pushInt(g);
+        result.pushInt(b);
+        callback.invoke(null, result);
     }
 
-    CGFloat width = image.size.width;
-    CGFloat height = image.size.height;
-    CGFloat rotatedAngle = angle + rotation;
-
-    CGPoint center = CGPointMake(width * 0.5, height * 0.5);
-
-    CGFloat x = center.x + radius * cosf(rotatedAngle);
-    CGFloat y = center.y + radius * sinf(rotatedAngle);
-    [self getPixelColorFromImage:image atX:x atY:y callback:callback];
-}
-
-RCT_EXPORT_METHOD(findAngleOfNearestColor:(NSString *)imageName
-                  minAngle:(CGFloat)minAngle
-                  maxAngle:(CGFloat)maxAngle
-                  radius:(CGFloat)radius
-                  targetColor:(NSArray*)targetColor
-                  callback:(RCTResponseSenderBlock)callback) {
-    UIImage *image = [UIImage imageNamed:imageName];
-    if (image == nil) {
-        return callback(@[@"Could not create image from given path.", @""]);
-    }
-
-    CGFloat width = image.size.width;
-    CGFloat height = image.size.height;
-    CGPoint center = CGPointMake(width * 0.5, height * 0.5);
-    CGFloat angle = minAngle;
-
-    CGFloat targetRed = [targetColor[0] floatValue];
-    CGFloat targetGreen = [targetColor[1] floatValue];
-    CGFloat targetBlue = [targetColor[2] floatValue];
-
-    CGFloat minDistance = CGFLOAT_MAX;
-    CGFloat resultAngle = CGFLOAT_MAX;
-
-    while (angle <= maxAngle) {
-        CGFloat rotatedAngle = angle + rotation;
-        CGFloat x = center.x + radius * cosf(rotatedAngle);
-        CGFloat y = center.y + radius * sinf(rotatedAngle);
-
-        CGFloat red;
-        CGFloat green;
-        CGFloat blue;
-        [image rgbaAtPixel:CGPointMake(x, y) red:&red green:&green blue:&blue];
-
-        CGFloat distance = powf(targetRed - red, 2) + powf(targetGreen - green, 2) + powf(targetBlue - blue, 2);
-
-        if (distance < minDistance) {
-            minDistance = distance;
-            resultAngle = angle;
-        }
-
-        angle += M_PI / 180;
-    }
-    callback(@[[NSNull null], @(resultAngle)]);
-}
-
-- (void)getPixelColorFromImage:(UIImage*)image atX:(CGFloat)x atY:(CGFloat)y callback:(RCTResponseSenderBlock)callback {
-    CGPoint point = CGPointMake(x, y);
-    CGFloat red;
-    CGFloat green;
-    CGFloat blue;
-    BOOL success = [image rgbaAtPixel:point red:&red green:&green blue:&blue];
-    if (success) {
-        callback(@[[NSNull null], @[@(red), @(green), @(blue)]]);
-    } else {
-        callback(@[@"Could not create image from given path.", @""]);
+    private Bitmap loadImage(final String imageName) throws IOException {
+        final InputStream inputStream = context.getAssets().open("drawable/" + imageName + ".png");
+        final Drawable drawable = Drawable.createFromStream(inputStream, null);
+        return ((BitmapDrawable) drawable).getBitmap();
     }
 }
-
-
-@end
-
- */
