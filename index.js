@@ -19,7 +19,6 @@ export function getPixelRGBAPolar(imageName, angle, radius) {
         if (err) {
           return reject(err);
         }
-        console.log("-----<", color)
         resolve(color);
       });
   });
