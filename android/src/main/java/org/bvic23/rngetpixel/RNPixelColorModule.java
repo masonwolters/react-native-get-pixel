@@ -24,7 +24,7 @@ import static java.lang.Math.sin;
 
 class RNPixelColorModule extends ReactContextBaseJavaModule {
     private final Context context;
-    private static final double rotation = PI / 2;
+    private static final double rotation =  PI / 2;
 
     public RNPixelColorModule(final ReactApplicationContext reactContext) {
         super(reactContext);
@@ -94,8 +94,8 @@ class RNPixelColorModule extends ReactContextBaseJavaModule {
 
                 final int pixel = image.getPixel(x, y);
                 final int red = Color.red(pixel);
-                final int green = Color.blue(pixel);
-                final int blue = Color.green(pixel);
+                final int green = Color.green(pixel);
+                final int blue = Color.blue(pixel);
 
                 final double distance = pow(targetRed - red, 2) + pow(targetGreen - green, 2) + pow(targetBlue - blue, 2);
 
@@ -115,8 +115,8 @@ class RNPixelColorModule extends ReactContextBaseJavaModule {
 
     private void respondWithPixel(final Callback callback, final int pixel) {
         final int r = Color.red(pixel);
-        final int g = Color.blue(pixel);
-        final int b = Color.green(pixel);
+        final int g = Color.green(pixel);
+        final int b = Color.blue(pixel);
 
         final WritableArray result = new WritableNativeArray();
         result.pushInt(r);

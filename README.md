@@ -23,4 +23,4 @@ getPixelRGBA('sample.png', x, y)
    .catch(err => {});
 ```
 
-**NOTE:** You have to add sample.png to the Xcode project as a resource. TODO: Android instructions
+**NOTE:** You have to add sample.png to the Xcode project as a resource and to `src/main/assets/drawable` on Android.
