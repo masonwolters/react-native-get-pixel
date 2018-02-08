@@ -22,5 +22,6 @@
     "react-native": ">=v0.14.2"
   },
   "author": "Viktor Belenyesi <bvic23@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "nativePackage": true
 }
