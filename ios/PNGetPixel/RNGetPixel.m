@@ -8,8 +8,6 @@
 
 @synthesize bridge = _bridge;
 
-static NSString* lastImageName = nil;
-static UIImage* image = nil;
 static CGFloat rotation = M_PI / 2;
 
 RCT_EXPORT_MODULE();
@@ -18,9 +16,7 @@ RCT_EXPORT_METHOD(getPixelRGBAofImage:(NSString *)imageName
                   atX:(CGFloat)x
                   atY:(CGFloat)y
                   callback:(RCTResponseSenderBlock)callback) {
-    if (image == nil || ![lastImageName isEqualToString:imageName]) {
-        image = [UIImage imageNamed:imageName];
-    }
+    UIImage *image = [UIImage imageNamed:imageName];
     if (image == nil) {
         return callback(@[@"Could not create image from given path.", @""]);
     }
@@ -31,9 +27,7 @@ RCT_EXPORT_METHOD(getPixelRGBAPolarOfImage:(NSString *)imageName
                   angle:(CGFloat)angle
                   radius:(CGFloat)radius
                   callback:(RCTResponseSenderBlock)callback) {
-    if (image == nil || ![lastImageName isEqualToString:imageName]) {
-        image = [UIImage imageNamed:imageName];
-    }
+    UIImage *image = [UIImage imageNamed:imageName];
     if (image == nil) {
         return callback(@[@"Could not create image from given path.", @""]);
     }
@@ -55,9 +49,7 @@ RCT_EXPORT_METHOD(findAngleOfNearestColor:(NSString *)imageName
                   radius:(CGFloat)radius
                   targetColor:(NSArray*)targetColor
                   callback:(RCTResponseSenderBlock)callback) {
-    if (image == nil || ![lastImageName isEqualToString:imageName]) {
-        image = [UIImage imageNamed:imageName];
-    }
+    UIImage *image = [UIImage imageNamed:imageName];
     if (image == nil) {
         return callback(@[@"Could not create image from given path.", @""]);
     }
