@@ -23,5 +23,6 @@
   },
   "author": "Viktor Belenyesi <bvic23@gmail.com>",
   "license": "MIT",
-  "nativePackage": true
+  "nativePackage": true,
+  "homepage": "https://github.com/masonwolters/react-native-get-pixel"
 }
